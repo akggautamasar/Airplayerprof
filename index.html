@@ -63,14 +63,6 @@
             transform: translateY(0);
             box-shadow: 0 2px 5px rgba(99, 102, 241, 0.3);
         }
-        video {
-            width: 100%;
-            max-height: 60vh; /* Max height for video player */
-            border-radius: 1rem;
-            background-color: black;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-            display: none; /* Hidden by default */
-        }
         .message {
             background-color: #334155;
             padding: 1rem;
@@ -103,24 +95,23 @@
 <body>
     <div class="container">
         <h1 class="text-3xl font-extrabold text-center text-white mb-4">AirPlayerPro</h1>
-        <p class="text-center text-gray-400 mb-6">Enter your Terabox video share link to play.</p>
+        <p class="text-center text-gray-400 mb-6">Enter your Terabox video share link to open in your browser's player.</p>
 
         <div class="flex flex-col sm:flex-row gap-4">
             <input type="text" id="teraboxLinkInput" placeholder="Paste Terabox Link here (e.g., https://teraboxapp.com/s/1h97DwtT0zc0uDzfNNWbCsA)" class="flex-grow">
-            <button id="playButton">Play Video</button>
+            <button id="playButton">Open Video</button>
         </div>
 
         <div id="messageArea" class="message hidden"></div>
         <div id="loadingSpinner" class="loading-spinner hidden"></div>
 
-        <video id="videoPlayer" controls autoplay></video>
+        <!-- The video player element is removed as requested -->
     </div>
 
     <script>
         // Get references to HTML elements
         const teraboxLinkInput = document.getElementById('teraboxLinkInput');
         const playButton = document.getElementById('playButton');
-        const videoPlayer = document.getElementById('videoPlayer');
         const messageArea = document.getElementById('messageArea');
         const loadingSpinner = document.getElementById('loadingSpinner');
 
@@ -159,20 +150,17 @@
         function showLoading(show) {
             if (show) {
                 loadingSpinner.classList.remove('hidden');
-                videoPlayer.classList.add('hidden'); // Hide video while loading
             } else {
                 loadingSpinner.classList.add('hidden');
             }
         }
 
         /**
-         * Handles the play video button click event.
+         * Handles the "Open Video" button click event.
          */
         playButton.addEventListener('click', async () => {
             const teraboxLink = teraboxLinkInput.value.trim();
             hideMessage();
-            videoPlayer.src = ''; // Clear previous video
-            videoPlayer.classList.add('hidden'); // Hide video player initially
 
             if (!teraboxLink) {
                 showMessage("Please enter a Terabox shared link.", true);
@@ -186,7 +174,7 @@
             }
 
             showLoading(true);
-            showMessage("Fetching video details...", false);
+            showMessage("Fetching video URL...", false);
 
             try {
                 // Construct the target API URL
@@ -208,15 +196,9 @@
                     const videoFile = data.list.find(file => file.type === 'video' && file.playUrl);
 
                     if (videoFile) {
-                        videoPlayer.src = videoFile.playUrl;
-                        videoPlayer.classList.remove('hidden'); // Show video player
-                        videoPlayer.load(); // Load the video
-                        videoPlayer.play().catch(e => {
-                            // Catch play() promise rejection (e.g., user interaction required)
-                            console.warn("Video auto-play blocked or failed:", e);
-                            showMessage("Video loaded. Click play button on the video player to start.", false);
-                        });
-                        hideMessage(); // Hide message if video starts playing
+                        // Open the playUrl in a new tab
+                        window.open(videoFile.playUrl, '_blank');
+                        showMessage("Video opened in a new tab. If it didn't open, please check your browser's pop-up blocker.", false);
                     } else {
                         showMessage("No playable video found in the shared link.", true);
                     }
