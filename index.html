@@ -98,14 +98,12 @@
         <p class="text-center text-gray-400 mb-6">Enter your Terabox video share link to open in your browser's player.</p>
 
         <div class="flex flex-col sm:flex-row gap-4">
-            <input type="text" id="teraboxLinkInput" placeholder="Paste Terabox Link here (e.g., https://teraboxapp.com/s/1h97DwtT0zc0uDzfNNWbCsA)" class="flex-grow">
+            <input type="text" id="teraboxLinkInput" placeholder="Paste your Terabox Link here (e.g., https://teraboxapp.com/s/1h97DwtT0zc0uDzfNNWbCsA)" class="flex-grow">
             <button id="playButton">Open Video</button>
         </div>
 
         <div id="messageArea" class="message hidden"></div>
         <div id="loadingSpinner" class="loading-spinner hidden"></div>
-
-        <!-- The video player element is removed as requested -->
     </div>
 
     <script>
@@ -163,13 +161,15 @@
             hideMessage();
 
             if (!teraboxLink) {
-                showMessage("Please enter a Terabox shared link.", true);
+                showMessage("Please enter a link.", true);
                 return;
             }
 
-            // Basic validation for Terabox link format
-            if (!teraboxLink.startsWith('https://teraboxapp.com/s/')) {
-                showMessage("Invalid Terabox link format. It should start with 'https://teraboxapp.com/s/'.", true);
+            // Basic check if it's a valid URL format at all
+            try {
+                new URL(teraboxLink);
+            } catch (e) {
+                showMessage("Please enter a valid URL.", true);
                 return;
             }
 
@@ -178,6 +178,7 @@
 
             try {
                 // Construct the target API URL
+                // The worker API expects the actual Terabox link to be passed as the 'url' parameter
                 const targetApiUrl = `${TERABOX_API_WORKER_BASE_URL}?url=${encodeURIComponent(teraboxLink)}`;
                 // Construct the final URL using the CORS proxy
                 const finalFetchUrl = `${CORS_PROXY_URL}${encodeURIComponent(targetApiUrl)}`;
@@ -200,7 +201,8 @@
                         window.open(videoFile.playUrl, '_blank');
                         showMessage("Video opened in a new tab. If it didn't open, please check your browser's pop-up blocker.", false);
                     } else {
-                        showMessage("No playable video found in the shared link.", true);
+                        // This message will appear if the link is not a Terabox video link that the API can parse
+                        showMessage("No playable video found in the provided link. Please ensure it's a valid Terabox video share link.", true);
                     }
                 } else {
                     showMessage("Could not retrieve video details. Invalid link or no media found.", true);
