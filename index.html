@@ -115,8 +115,7 @@
 
         // Define the base URL for the API worker
         const TERABOX_API_WORKER_BASE_URL = 'https://tera.iqbalalam8675.workers.dev/';
-        // Define the CORS proxy URL
-        const CORS_PROXY_URL = 'https://cors.hideme.eu.org/?url=';
+        // CORS proxy URL is removed as we are testing direct access
 
         /**
          * Displays a message in the message area.
@@ -177,13 +176,10 @@
             showMessage("Fetching video URL...", false);
 
             try {
-                // Construct the target API URL
-                // The worker API expects the actual Terabox link to be passed as the 'url' parameter
-                const targetApiUrl = `${TERABOX_API_WORKER_BASE_URL}?url=${encodeURIComponent(teraboxLink)}`;
-                // Construct the final URL using the CORS proxy
-                const finalFetchUrl = `${CORS_PROXY_URL}${encodeURIComponent(targetApiUrl)}`;
+                // Construct the direct API URL without the CORS proxy
+                const finalFetchUrl = `${TERABOX_API_WORKER_BASE_URL}?url=${encodeURIComponent(teraboxLink)}`;
                 
-                console.log("Fetching from API URL (via proxy):", finalFetchUrl); // Log the API URL for debugging
+                console.log("Fetching from API URL (direct):", finalFetchUrl); // Log the API URL for debugging
 
                 const response = await fetch(finalFetchUrl);
                 if (!response.ok) {
@@ -205,13 +201,20 @@
                         showMessage("No playable video found in the provided link. Please ensure it's a valid Terabox video share link.", true);
                     }
                 } else {
-                    showMessage("Could not retrieve video details. Invalid link or no media found.", true);
+                    // If the API returns an error structure (like the errno message from proxy previously)
+                    // or a non-success status, display that.
+                    if (data.show_msg) {
+                        showMessage(`API Error: ${data.show_msg}`, true);
+                    } else {
+                        showMessage("Could not retrieve video details. Invalid link or no media found.", true);
+                    }
                 }
 
             } catch (error) {
                 console.error("Error fetching video:", error);
                 if (error instanceof TypeError && error.message === 'Failed to fetch') {
-                    showMessage("Error: Could not connect to the API service. Please check your internet connection or try again later. The Terabox API service or the CORS proxy might be temporarily unavailable.", true);
+                    // This error now more likely indicates a direct CORS issue or network problem
+                    showMessage("Error: Failed to connect to the Terabox API. This might be due to network issues or CORS restrictions. Please try again later.", true);
                 } else {
                     showMessage(`Error fetching video: ${error.message}. Please check the link.`, true);
                 }
