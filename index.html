@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AirPlayerPro</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Dark background */
+            color: #e2e8f0; /* Light text */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #1e293b; /* Slightly lighter dark background */
+            border-radius: 1.5rem; /* More rounded corners */
+            padding: 2.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4); /* Stronger shadow */
+            max-width: 900px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            border: 1px solid #334155; /* Subtle border */
+        }
+        input[type="text"] {
+            background-color: #334155; /* Darker input background */
+            border: 1px solid #475569;
+            color: #cbd5e1;
+            padding: 0.85rem 1.25rem; /* Slightly more padding */
+            border-radius: 0.75rem; /* Rounded input */
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        input[type="text"]:focus {
+            border-color: #6366f1; /* Accent color on focus */
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.5); /* Focus ring */
+        }
+        button {
+            background-image: linear-gradient(to right, #6366f1, #8b5cf6); /* Gradient button */
+            color: white;
+            padding: 0.9rem 1.75rem;
+            border-radius: 0.75rem; /* Rounded button */
+            font-weight: 600;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.4);
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(99, 102, 241, 0.6);
+        }
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(99, 102, 241, 0.3);
+        }
+        video {
+            width: 100%;
+            max-height: 60vh; /* Max height for video player */
+            border-radius: 1rem;
+            background-color: black;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            display: none; /* Hidden by default */
+        }
+        .message {
+            background-color: #334155;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            font-weight: 500;
+            color: #cbd5e1;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+            word-break: break-all; /* Ensure long URLs wrap */
+        }
+        .error-message {
+            background-color: #ef4444; /* Red for errors */
+            color: white;
+        }
+        .loading-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #6366f1;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-3xl font-extrabold text-center text-white mb-4">AirPlayerPro</h1>
+        <p class="text-center text-gray-400 mb-6">Enter your Terabox video share link to play.</p>
+
+        <div class="flex flex-col sm:flex-row gap-4">
+            <input type="text" id="teraboxLinkInput" placeholder="Paste Terabox Link here (e.g., https://teraboxapp.com/s/1h97DwtT0zc0uDzfNNWbCsA)" class="flex-grow">
+            <button id="playButton">Play Video</button>
+        </div>
+
+        <div id="messageArea" class="message hidden"></div>
+        <div id="loadingSpinner" class="loading-spinner hidden"></div>
+
+        <video id="videoPlayer" controls autoplay></video>
+    </div>
+
+    <script>
+        // Get references to HTML elements
+        const teraboxLinkInput = document.getElementById('teraboxLinkInput');
+        const playButton = document.getElementById('playButton');
+        const videoPlayer = document.getElementById('videoPlayer');
+        const messageArea = document.getElementById('messageArea');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+
+        // Define the base URL for the API worker
+        const TERABOX_API_WORKER_BASE_URL = 'https://tera.iqbalalam8675.workers.dev/';
+        // Define the CORS proxy URL
+        const CORS_PROXY_URL = 'https://cors.hideme.eu.org/?url=';
+
+        /**
+         * Displays a message in the message area.
+         * @param {string} msg - The message to display.
+         * @param {boolean} isError - True if the message is an error, false otherwise.
+         */
+        function showMessage(msg, isError = false) {
+            messageArea.textContent = msg;
+            messageArea.classList.remove('hidden');
+            if (isError) {
+                messageArea.classList.add('error-message');
+            } else {
+                messageArea.classList.remove('error-message');
+            }
+        }
+
+        /**
+         * Hides the message area.
+         */
+        function hideMessage() {
+            messageArea.classList.add('hidden');
+            messageArea.classList.remove('error-message');
+        }
+
+        /**
+         * Shows or hides the loading spinner.
+         * @param {boolean} show - True to show, false to hide.
+         */
+        function showLoading(show) {
+            if (show) {
+                loadingSpinner.classList.remove('hidden');
+                videoPlayer.classList.add('hidden'); // Hide video while loading
+            } else {
+                loadingSpinner.classList.add('hidden');
+            }
+        }
+
+        /**
+         * Handles the play video button click event.
+         */
+        playButton.addEventListener('click', async () => {
+            const teraboxLink = teraboxLinkInput.value.trim();
+            hideMessage();
+            videoPlayer.src = ''; // Clear previous video
+            videoPlayer.classList.add('hidden'); // Hide video player initially
+
+            if (!teraboxLink) {
+                showMessage("Please enter a Terabox shared link.", true);
+                return;
+            }
+
+            // Basic validation for Terabox link format
+            if (!teraboxLink.startsWith('https://teraboxapp.com/s/')) {
+                showMessage("Invalid Terabox link format. It should start with 'https://teraboxapp.com/s/'.", true);
+                return;
+            }
+
+            showLoading(true);
+            showMessage("Fetching video details...", false);
+
+            try {
+                // Construct the target API URL
+                const targetApiUrl = `${TERABOX_API_WORKER_BASE_URL}?url=${encodeURIComponent(teraboxLink)}`;
+                // Construct the final URL using the CORS proxy
+                const finalFetchUrl = `${CORS_PROXY_URL}${encodeURIComponent(targetApiUrl)}`;
+                
+                console.log("Fetching from API URL (via proxy):", finalFetchUrl); // Log the API URL for debugging
+
+                const response = await fetch(finalFetchUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+
+                // Check for success status and list of files
+                if (data.status === 'success' && data.list && data.list.length > 0) {
+                    // Find the first video file in the list
+                    const videoFile = data.list.find(file => file.type === 'video' && file.playUrl);
+
+                    if (videoFile) {
+                        videoPlayer.src = videoFile.playUrl;
+                        videoPlayer.classList.remove('hidden'); // Show video player
+                        videoPlayer.load(); // Load the video
+                        videoPlayer.play().catch(e => {
+                            // Catch play() promise rejection (e.g., user interaction required)
+                            console.warn("Video auto-play blocked or failed:", e);
+                            showMessage("Video loaded. Click play button on the video player to start.", false);
+                        });
+                        hideMessage(); // Hide message if video starts playing
+                    } else {
+                        showMessage("No playable video found in the shared link.", true);
+                    }
+                } else {
+                    showMessage("Could not retrieve video details. Invalid link or no media found.", true);
+                }
+
+            } catch (error) {
+                console.error("Error fetching video:", error);
+                if (error instanceof TypeError && error.message === 'Failed to fetch') {
+                    showMessage("Error: Could not connect to the API service. Please check your internet connection or try again later. The Terabox API service or the CORS proxy might be temporarily unavailable.", true);
+                } else {
+                    showMessage(`Error fetching video: ${error.message}. Please check the link.`, true);
+                }
+            } finally {
+                showLoading(false);
+            }
+        });
+
+        // Optional: Pre-fill with example link for testing
+        // teraboxLinkInput.value = 'https://teraboxapp.com/s/1h97DwtT0zc0uDzfNNWbCsA';
+    </script>
+</body>
+</html>
