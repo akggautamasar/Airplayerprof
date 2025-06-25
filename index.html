@@ -3,228 +3,375 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AirPlayerPro</title>
-    <!-- Tailwind CSS CDN -->
+    <title>AirPlayer - Terabox Streamer</title>
+    <!-- Tailwind CSS CDN for basic styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0f172a; /* Dark background */
-            color: #e2e8f0; /* Light text */
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 1rem;
+            background-color: #f0f4f8; /* Light blue-gray background */
+            padding: 1rem; /* Add some padding for small screens */
             box-sizing: border-box;
         }
         .container {
-            background-color: #1e293b; /* Slightly lighter dark background */
-            border-radius: 1.5rem; /* More rounded corners */
-            padding: 2.5rem;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4); /* Stronger shadow */
-            max-width: 900px;
+            background-color: #ffffff;
+            padding: 2rem;
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-2xl */
             width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            border: 1px solid #334155; /* Subtle border */
+            max-width: 650px; /* Increased max-width for three sections */
+            border: 1px solid #cbd5e1; /* border-gray-300 */
         }
-        input[type="text"] {
-            background-color: #334155; /* Darker input background */
-            border: 1px solid #475569;
-            color: #cbd5e1;
-            padding: 0.85rem 1.25rem; /* Slightly more padding */
-            border-radius: 0.75rem; /* Rounded input */
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        video {
+            width: 100%;
+            max-height: 400px;
+            background-color: #000;
+            border-radius: 0.5rem; /* rounded-lg */
+            margin-bottom: 1rem;
         }
-        input[type="text"]:focus {
-            border-color: #6366f1; /* Accent color on focus */
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.5); /* Focus ring */
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
         }
-        button {
-            background-image: linear-gradient(to right, #6366f1, #8b5cf6); /* Gradient button */
-            color: white;
-            padding: 0.9rem 1.75rem;
-            border-radius: 0.75rem; /* Rounded button */
-            font-weight: 600;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.4);
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(99, 102, 241, 0.6);
-        }
-        button:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 5px rgba(99, 102, 241, 0.3);
-        }
-        .message {
-            background-color: #334155;
-            padding: 1rem;
+        .api-section {
+            border: 1px solid #e2e8f0;
             border-radius: 0.75rem;
-            text-align: center;
-            font-weight: 500;
-            color: #cbd5e1;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
-            word-break: break-all; /* Ensure long URLs wrap */
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            background-color: #f8fafc;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         }
-        .error-message {
-            background-color: #ef4444; /* Red for errors */
-            color: white;
-        }
-        .loading-spinner {
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top: 4px solid #6366f1;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .api-section h2 {
+            border-bottom: 2px solid #cbd5e1;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
         }
     </style>
 </head>
-<body>
+<body class="bg-gradient-to-br from-blue-100 to-indigo-200">
     <div class="container">
-        <h1 class="text-3xl font-extrabold text-center text-white mb-4">AirPlayerPro</h1>
-        <p class="text-center text-gray-400 mb-6">Enter your Terabox video share link to open in your browser's player.</p>
+        <h1 class="text-3xl font-extrabold text-gray-800 mb-4 text-center">
+            <span class="text-blue-600">Air</span><span class="text-indigo-600">Player</span>
+        </h1>
+        <p class="text-center text-gray-600 mb-6">Stream Terabox videos by pasting a link below.</p>
 
-        <div class="flex flex-col sm:flex-row gap-4">
-            <input type="text" id="teraboxLinkInput" placeholder="Paste your Terabox Link here (e.g., https://teraboxapp.com/s/1h97DwtT0zc0uDzfNNWbCsA)" class="flex-grow">
-            <button id="playButton">Open Video</button>
+        <div class="mb-6">
+            <input
+                type="url"
+                id="teraboxUrlInput"
+                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-gray-400"
+                placeholder="e.g., https://teraboxapp.com/s/some_share_id"
+                required
+            />
+            <button
+                id="loadVideoButton"
+                class="mt-4 w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:from-blue-600 hover:to-indigo-700 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                Load Video
+            </button>
         </div>
 
-        <div id="messageArea" class="message hidden"></div>
-        <div id="loadingSpinner" class="loading-spinner hidden"></div>
+        <div id="loadingIndicator" class="hidden text-center text-indigo-500 font-semibold mb-4">
+            <div class="animate-spin inline-block w-6 h-6 border-4 border-indigo-500 border-t-transparent rounded-full mr-2"></div>
+            Loading video details...
+        </div>
+
+        <div id="overallErrorMessage" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-4">
+            <strong class="font-bold">Error!</strong>
+            <span class="block sm:inline" id="overallErrorText"></span>
+        </div>
+
+        <!-- API 1 Results Section -->
+        <div id="api1Results" class="api-section hidden">
+            <h2 class="text-xl font-bold text-gray-800 mb-2">API 1 Results (<span class="text-indigo-600">tera.iqbalalam8675.workers.dev</span>)</h2>
+            <div id="api1ErrorMessage" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-4 text-sm">
+                <strong class="font-bold">Error:</strong>
+                <span class="block sm:inline" id="api1ErrorText"></span>
+            </div>
+            <img id="thumbnailApi1" class="mx-auto hidden" alt="Video Thumbnail (API 1)">
+            <video id="videoPlayerApi1" controls class="hidden">Your browser does not support the video tag.</video>
+            <p class="text-gray-700 mb-2">
+                <strong class="text-blue-700">File Name:</strong> <span id="fileNameApi1"></span>
+            </p>
+            <p class="text-gray-700 mb-4">
+                <strong class="text-blue-700">File Size:</strong> <span id="fileSizeApi1"></span>
+            </p>
+            <a id="downloadLinkApi1" href="#" target="_blank" rel="noopener noreferrer" class="block w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-blue-600 transition duration-200 text-center mb-2 hidden">
+                ⬇️ Download Video (API 1)
+            </a>
+            <button id="streamInBrowserApi1" class="block w-full bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-indigo-600 transition duration-200 text-center hidden">
+                ▶️ Stream in Browser (API 1)
+            </button>
+        </div>
+
+        <!-- API 2 Results Section -->
+        <div id="api2Results" class="api-section hidden">
+            <h2 class="text-xl font-bold text-gray-800 mb-2">API 2 Results (<span class="text-indigo-600">teraboxapi.thory.workers.dev</span>)</h2>
+            <div id="api2ErrorMessage" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-4 text-sm">
+                <strong class="font-bold">Error:</strong>
+                <span class="block sm:inline" id="api2ErrorText"></span>
+            </div>
+            <img id="thumbnailApi2" class="mx-auto hidden" alt="Video Thumbnail (API 2)">
+            <video id="videoPlayerApi2" controls class="hidden">Your browser does not support the video tag.</video>
+            <p class="text-gray-700 mb-2">
+                <strong class="text-blue-700">File Name:</strong> <span id="fileNameApi2"></span>
+            </p>
+            <p class="text-gray-700 mb-4">
+                <strong class="text-blue-700">File Size:</strong> <span id="fileSizeApi2"></span>
+            </p>
+            <a id="downloadLinkApi2" href="#" target="_blank" rel="noopener noreferrer" class="block w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-blue-600 transition duration-200 text-center mb-2 hidden">
+                ⬇️ Download Video (API 2)
+            </a>
+            <button id="streamInBrowserApi2" class="block w-full bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-indigo-600 transition duration-200 text-center hidden">
+                ▶️ Stream in Browser (API 2)
+            </button>
+            <p id="downloadUnavailableMessageApi2" class="hidden mt-4 text-center text-orange-600 text-sm font-medium">
+                ⚠️ Download feature is currently unavailable via API 2.
+            </p>
+        </div>
+
+        <!-- API 3 Results Section -->
+        <div id="api3Results" class="api-section hidden">
+            <h2 class="text-xl font-bold text-gray-800 mb-2">API 3 Results (<span class="text-indigo-600">terabox-pro-api.vercel.app</span>)</h2>
+            <div id="api3ErrorMessage" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-4 text-sm">
+                <strong class="font-bold">Error:</strong>
+                <span class="block sm:inline" id="api3ErrorText"></span>
+            </div>
+            <img id="thumbnailApi3" class="mx-auto hidden" alt="Video Thumbnail (API 3)">
+            <video id="videoPlayerApi3" controls class="hidden">Your browser does not support the video tag.</video>
+            <p class="text-gray-700 mb-2">
+                <strong class="text-blue-700">File Name:</strong> <span id="fileNameApi3"></span>
+            </p>
+            <p class="text-gray-700 mb-4">
+                <strong class="text-blue-700">File Size:</strong> <span id="fileSizeApi3"></span>
+            </p>
+            <a id="downloadLinkApi3" href="#" target="_blank" rel="noopener noreferrer" class="block w-full bg-blue-500 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-blue-600 transition duration-200 text-center mb-2 hidden">
+                ⬇️ Download Video (API 3)
+            </a>
+            <button id="streamInBrowserApi3" class="block w-full bg-indigo-500 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-indigo-600 transition duration-200 text-center hidden">
+                ▶️ Stream in Browser (API 3)
+            </button>
+        </div>
+
+        <p class="mt-8 text-center text-sm text-gray-500 font-bold text-red-600">
+            ❗ Important Note: Full-length streaming via direct links may be limited by Terabox's service policies on free accounts. For complete videos, offline playback or usage of the official Terabox app/website is generally more reliable.
+        </p>
     </div>
 
     <script>
-        // Get references to HTML elements
-        const teraboxLinkInput = document.getElementById('teraboxLinkInput');
-        const playButton = document.getElementById('playButton');
-        const messageArea = document.getElementById('messageArea');
-        const loadingSpinner = document.getElementById('loadingSpinner');
+        // API Endpoints
+        const API_WORKER_1_BASE = 'https://tera.iqbalalam8675.workers.dev/';
+        const API_WORKER_2_BASE = 'https://teraboxapi.thory.workers.dev/api';
+        const API_WORKER_3_BASE = 'https://terabox-pro-api.vercel.app/api'; // New API
+        const CORS_PROXY_BASE = 'https://cors.hideme.eu.org/?url='; // Using cors.hideme.eu.org proxy
 
-        // Define the base URL for the API worker
-        const TERABOX_API_WORKER_BASE_URL = 'https://tera.iqbalalam8675.workers.dev/';
-        // CORS proxy URL is removed as we are testing direct access
+        // Main UI Elements
+        const teraboxUrlInput = document.getElementById('teraboxUrlInput');
+        const loadVideoButton = document.getElementById('loadVideoButton');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const overallErrorMessage = document.getElementById('overallErrorMessage');
+        const overallErrorText = document.getElementById('overallErrorText');
+
+        // API 1 UI Elements
+        const api1Results = document.getElementById('api1Results');
+        const api1ErrorMessage = document.getElementById('api1ErrorMessage');
+        const api1ErrorText = document.getElementById('api1ErrorText');
+        const thumbnailApi1 = document.getElementById('thumbnailApi1');
+        const videoPlayerApi1 = document.getElementById('videoPlayerApi1');
+        const fileNameApi1 = document.getElementById('fileNameApi1');
+        const fileSizeApi1 = document.getElementById('fileSizeApi1');
+        const downloadLinkApi1 = document.getElementById('downloadLinkApi1');
+        const streamInBrowserApi1 = document.getElementById('streamInBrowserApi1');
+
+        // API 2 UI Elements
+        const api2Results = document.getElementById('api2Results');
+        const api2ErrorMessage = document.getElementById('api2ErrorMessage');
+        const api2ErrorText = document.getElementById('api2ErrorText');
+        const thumbnailApi2 = document.getElementById('thumbnailApi2');
+        const videoPlayerApi2 = document.getElementById('videoPlayerApi2');
+        const fileNameApi2 = document.getElementById('fileNameApi2');
+        const fileSizeApi2 = document.getElementById('fileSizeApi2');
+        const downloadLinkApi2 = document.getElementById('downloadLinkApi2');
+        const streamInBrowserApi2 = document.getElementById('streamInBrowserApi2');
+        const downloadUnavailableMessageApi2 = document.getElementById('downloadUnavailableMessageApi2');
+
+        // API 3 UI Elements
+        const api3Results = document.getElementById('api3Results');
+        const api3ErrorMessage = document.getElementById('api3ErrorMessage');
+        const api3ErrorText = document.getElementById('api3ErrorText');
+        const thumbnailApi3 = document.getElementById('thumbnailApi3');
+        const videoPlayerApi3 = document.getElementById('videoPlayerApi3');
+        const fileNameApi3 = document.getElementById('fileNameApi3');
+        const fileSizeApi3 = document.getElementById('fileSizeApi3');
+        const downloadLinkApi3 = document.getElementById('downloadLinkApi3');
+        const streamInBrowserApi3 = document.getElementById('streamInBrowserApi3');
+
+
+        loadVideoButton.addEventListener('click', loadVideo);
 
         /**
-         * Displays a message in the message area.
-         * @param {string} msg - The message to display.
-         * @param {boolean} isError - True if the message is an error, false otherwise.
+         * Displays a general error message at the top.
+         * @param {string} msg The error message.
          */
-        function showMessage(msg, isError = false) {
-            messageArea.textContent = msg;
-            messageArea.classList.remove('hidden');
-            if (isError) {
-                messageArea.classList.add('error-message');
-            } else {
-                messageArea.classList.remove('error-message');
-            }
+        function showOverallError(msg) {
+            overallErrorMessage.classList.remove('hidden');
+            overallErrorText.textContent = msg;
         }
 
         /**
-         * Hides the message area.
+         * Displays an error message for a specific API section.
+         * @param {HTMLElement} errorElement The error div element (e.g., api1ErrorMessage).
+         * @param {HTMLElement} textElement The span element for the error text (e.g., api1ErrorText).
+         * @param {string} msg The error message.
          */
-        function hideMessage() {
-            messageArea.classList.add('hidden');
-            messageArea.classList.remove('error-message');
+        function showApiError(errorElement, textElement, msg) {
+            errorElement.classList.remove('hidden');
+            textElement.textContent = msg;
         }
 
         /**
-         * Shows or hides the loading spinner.
-         * @param {boolean} show - True to show, false to hide.
+         * Hides an API section's content and errors.
+         * @param {HTMLElement} sectionElement The main section div (e.g., api1Results).
+         * @param {HTMLElement} errorElement The error div element.
          */
-        function showLoading(show) {
-            if (show) {
-                loadingSpinner.classList.remove('hidden');
-            } else {
-                loadingSpinner.classList.add('hidden');
+        function resetApiSection(sectionElement, errorElement) {
+            sectionElement.classList.add('hidden');
+            errorElement.classList.add('hidden');
+            // Reset common elements within the section to hidden state for clean display
+            const videoPlayer = sectionElement.querySelector('video');
+            const thumbnail = sectionElement.querySelector('img');
+            const downloadLink = sectionElement.querySelector('a');
+            const streamButton = sectionElement.querySelector('button');
+            const fileN = sectionElement.querySelector('span[id^="fileName"]');
+            const fileS = sectionElement.querySelector('span[id^="fileSize"]');
+
+            if (videoPlayer) {
+                videoPlayer.pause();
+                videoPlayer.removeAttribute('src');
+                videoPlayer.load();
+                videoPlayer.classList.add('hidden');
+            }
+            if (thumbnail) {
+                thumbnail.src = '';
+                thumbnail.classList.add('hidden');
+            }
+            if (downloadLink) {
+                downloadLink.href = '#';
+                downloadLink.classList.add('hidden');
+            }
+            if (streamButton) {
+                streamButton.classList.add('hidden');
+            }
+            if (fileN) fileN.textContent = '';
+            if (fileS) fileS.textContent = '';
+
+            // Handle specific messages for API 2 and 3 if present
+            if (sectionElement.id === 'api2Results') {
+                document.getElementById('downloadUnavailableMessageApi2').classList.add('hidden');
             }
         }
 
-        /**
-         * Handles the "Open Video" button click event.
-         */
-        playButton.addEventListener('click', async () => {
-            const teraboxLink = teraboxLinkInput.value.trim();
-            hideMessage();
 
-            if (!teraboxLink) {
-                showMessage("Please enter a link.", true);
-                return;
-            }
+        async function fetchAndDisplayApi1Data(teraboxUrl) {
+            resetApiSection(api1Results, api1ErrorMessage); // Reset before fetch
+            api1Results.classList.remove('hidden'); // Show the section even if it's empty
 
-            // Basic check if it's a valid URL format at all
             try {
-                new URL(teraboxLink);
-            } catch (e) {
-                showMessage("Please enter a valid URL.", true);
-                return;
-            }
+                const apiUrl = `${API_WORKER_1_BASE}?url=${encodeURIComponent(teraboxUrl)}`;
+                // Apply CORS proxy to API 1 fetch
+                const finalFetchUrl = `${CORS_PROXY_BASE}${encodeURIComponent(apiUrl)}`; 
 
-            showLoading(true);
-            showMessage("Fetching video URL...", false);
-
-            try {
-                // Construct the direct API URL without the CORS proxy
-                const finalFetchUrl = `${TERABOX_API_WORKER_BASE_URL}?url=${encodeURIComponent(teraboxLink)}`;
-                
-                console.log("Fetching from API URL (direct):", finalFetchUrl); // Log the API URL for debugging
-
+                console.log(`API 1: Fetching from: ${finalFetchUrl}`);
                 const response = await fetch(finalFetchUrl);
+                console.log(`API 1: Response status: ${response.status}`);
+
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    const errorText = await response.text();
+                    console.error(`API 1: HTTP Error Response Text: ${errorText}`);
+                    throw new Error(`HTTP Error ${response.status}: ${response.statusText || 'Unknown error'}. Raw: ${errorText.substring(0, 100)}...`);
                 }
-                const data = await response.json();
+                
+                let data;
+                try {
+                    data = await response.json();
+                } catch (jsonError) {
+                    const rawText = await response.text();
+                    console.error(`API 1: JSON Parse Error: ${jsonError}. Raw response: ${rawText.substring(0, 100)}...`);
+                    throw new Error(`Invalid JSON response from proxy/API 1. Raw: ${rawText.substring(0, 100)}...`);
+                }
+                
+                console.log('API 1: Parsed data:', data);
 
-                // Check for success status and list of files
-                if (data.status === 'success' && data.list && data.list.length > 0) {
-                    // Find the first video file in the list
-                    const videoFile = data.list.find(file => file.type === 'video' && file.playUrl);
+                if (data && data.errno) {
+                     throw new Error(`Proxy Error: ${data.show_msg || 'Unknown proxy error.'}`);
+                }
 
-                    if (videoFile) {
-                        // Open the playUrl in a new tab
-                        window.open(videoFile.playUrl, '_blank');
-                        showMessage("Video opened in a new tab. If it didn't open, please check your browser's pop-up blocker.", false);
-                    } else {
-                        // This message will appear if the link is not a Terabox video link that the API can parse
-                        showMessage("No playable video found in the provided link. Please ensure it's a valid Terabox video share link.", true);
+                if (data.status !== "success" || !data.list || data.list.length === 0) {
+                    throw new Error(data.message || data.description || 'No data or success status from API 1.');
+                }
+
+                const videoFile = data.list.find(file => file.type === 'video' && file.playUrl);
+
+                if (videoFile) {
+                    fileNameApi1.textContent = videoFile.name || 'N/A';
+                    fileSizeApi1.textContent = videoFile.size ? formatBytes(parseInt(videoFile.size)) : 'N/A';
+
+                    if (videoFile.image) {
+                        thumbnailApi1.src = videoFile.image;
+                        thumbnailApi1.classList.remove('hidden');
                     }
+
+                    // For embedded player - uses the playUrl from API 1
+                    videoPlayerApi1.src = `${CORS_PROXY_BASE}${encodeURIComponent(videoFile.playUrl)}`;
+                    videoPlayerApi1.load();
+                    videoPlayerApi1.classList.remove('hidden');
+
+                    // For direct download link (using playUrl as best available)
+                    downloadLinkApi1.href = `${CORS_PROXY_BASE}${encodeURIComponent(videoFile.playUrl)}`;
+                    downloadLinkApi1.classList.remove('hidden');
+
+                    // For streaming in browser - DIRECTLY USE playUrl without CORS_PROXY_BASE
+                    streamInBrowserApi1.onclick = () => window.open(videoFile.playUrl, '_blank');
+                    streamInBrowserApi1.classList.remove('hidden');
+
                 } else {
-                    // If the API returns an error structure (like the errno message from proxy previously)
-                    // or a non-success status, display that.
-                    if (data.show_msg) {
-                        showMessage(`API Error: ${data.show_msg}`, true);
-                    } else {
-                        showMessage("Could not retrieve video details. Invalid link or no media found.", true);
-                    }
+                    showApiError(api1ErrorMessage, api1ErrorText, 'No playable video found for this link via API 1.');
                 }
-
             } catch (error) {
-                console.error("Error fetching video:", error);
-                if (error instanceof TypeError && error.message === 'Failed to fetch') {
-                    // This error now more likely indicates a direct CORS issue or network problem
-                    showMessage("Error: Failed to connect to the Terabox API. This might be due to network issues or CORS restrictions. Please try again later.", true);
-                } else {
-                    showMessage(`Error fetching video: ${error.message}. Please check the link.`, true);
-                }
-            } finally {
-                showLoading(false);
+                console.error('Error fetching from API 1:', error);
+                showApiError(api1ErrorMessage, api1ErrorText, `Failed to load from API 1: ${error.message}.`);
             }
-        });
+        }
 
-        // Optional: Pre-fill with example link for testing
-        // teraboxLinkInput.value = 'https://teraboxapp.com/s/1h97DwtT0zc0uDzfNNWbCsA';
-    </script>
-</body>
-</html>
+        async function fetchAndDisplayApi2Data(teraboxUrl) {
+            resetApiSection(api2Results, api2ErrorMessage); // Reset before fetch
+            api2Results.classList.remove('hidden'); // Show the section even if it's empty
+
+            try {
+                const apiUrl = `${API_WORKER_2_BASE}?key=free&url=${encodeURIComponent(teraboxUrl)}`;
+                const finalFetchUrl = `${CORS_PROXY_BASE}${encodeURIComponent(apiUrl)}`;
+
+                console.log(`API 2: Fetching from: ${finalFetchUrl}`);
+                const response = await fetch(finalFetchUrl);
+                console.log(`API 2: Response status: ${response.status}`);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error(`API 2: HTTP Error Response Text: ${errorText}`);
+                    throw new Error(`HTTP Error ${response.status}: ${response.statusText || 'Unknown error'}. Raw: ${errorText.substring(0, 100)}...`);
+                }
+
+                let data;
+                try {
+                    data = await response.json();
+                } catch (jsonError) {
+                    const rawText = await response.text();
+                    console.error(`API 2: JSON Parse Error: ${jsonError}. Raw response: ${rawText.substring(0, 100)}...`);
+                   
