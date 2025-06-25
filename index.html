@@ -337,8 +337,8 @@
                     downloadLinkApi1.href = `${CORS_PROXY_BASE}${encodeURIComponent(videoFile.playUrl)}`;
                     downloadLinkApi1.classList.remove('hidden');
 
-                    // For streaming in browser - DIRECTLY USE playUrl without CORS_PROXY_BASE
-                    streamInBrowserApi1.onclick = () => window.open(videoFile.playUrl, '_blank');
+                    // For streaming in browser - REVERTED TO USING CORS_PROXY_BASE as it's generally required
+                    streamInBrowserApi1.onclick = () => window.open(`${CORS_PROXY_BASE}${encodeURIComponent(videoFile.playUrl)}`, '_blank');
                     streamInBrowserApi1.classList.remove('hidden');
 
                 } else {
@@ -373,5 +373,4 @@
                     data = await response.json();
                 } catch (jsonError) {
                     const rawText = await response.text();
-                    console.error(`API 2: JSON Parse Error: ${jsonError}. Raw response: ${rawText.substring(0, 100)}...`);
-                   
+                    console.error(`API 2: JSON Parse Error: ${jsonError}. Raw respo
